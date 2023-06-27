@@ -4,8 +4,8 @@ PCA9685.py
 Function: A simple class to operate an PCA9685 I2C servo controller on an RPi with Python
 PCA9685 is a 16-Channel, 12-bit PWM/Servo Driver
 Author: Benjamin Walt
-Date: 12/30/2022
-Version: 0.1
+Date: 6/27/2023
+Version: 0.1.1
 Copyright (c) Benjamin Thomas Walt
 Licensed under the MIT license.
 """
@@ -53,7 +53,7 @@ class PCA9685:
 	
 	def _set_sleep_bit(self, value):
 		"""Sets the sleep bit of the mode 1 register without changing the other bits"""
-		sleep_bit = 4 # fifth bit
+		sleep_bit = 4 # fourth bit
 		current_state = self._read_reg(_PCA9685_MODE1)
 		if(value == 1):
 			new_state = current_state | (0x01 << sleep_bit)
@@ -81,13 +81,13 @@ class PCA9685:
 		sleep(0.1)
 		
 	def set_pwm(self, channel, on, off):
-		"""Sets the on and off point for the pwm signal. on is typically just 0 and off is a number less than 4096????"""
-		self._set_sleep_bit(0) # Wake up
+		"""Sets the on and off point for the pwm signal. on is typically just 0 and off is a number less than 4096"""
+		self._set_sleep_bit(1) # Sleep
 		self._bus.write_byte_data(self._address, _PCA9685_LED0_ON_L + 4*channel, on)
 		self._bus.write_byte_data(self._address, _PCA9685_LED0_ON_L + 4*channel +1, on >> 8)
 		self._bus.write_byte_data(self._address, _PCA9685_LED0_ON_L + 4*channel +2, (off & 0xFF))
 		self._bus.write_byte_data(self._address, _PCA9685_LED0_ON_L + 4*channel +3, off >> 8)
-		self._set_sleep_bit(1) # Sleep
+		self._set_sleep_bit(0) # Wake Up
 		
 	def set_oscillator_freq(self, freq=_PCA9685_OSCILLATOR_FREQUENCY):
 		""" Sets the oscillator frequency (not the servo frequency)."""
